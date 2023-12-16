@@ -18,7 +18,7 @@ public:
 	{
 		// init children
 		faderWrapper.reset(new FaderWrapper(vts, mvs));
-		footerBlock.reset(new FooterBlock());
+		footerBlock.reset(new FooterBlock(vts));
 
 		addAndMakeVisible(faderWrapper.get());
 		addAndMakeVisible(footerBlock.get());
@@ -41,7 +41,7 @@ public:
 		{
 			fb.items.add(juce::FlexItem(*faderWrapper.get()).withFlex(1));
 			fb.items.add(juce::FlexItem().withHeight(GAP));
-			fb.items.add(juce::FlexItem(*footerBlock.get()).withHeight(83));
+			fb.items.add(juce::FlexItem(*footerBlock.get()).withHeight(100));
 		}
 
 		fb.performLayout(getLocalBounds().reduced(GAP));

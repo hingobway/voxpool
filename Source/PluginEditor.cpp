@@ -28,7 +28,7 @@ VoxPoolAudioProcessorEditor::VoxPoolAudioProcessorEditor(VoxPoolAudioProcessor& 
 
 	// setup window
 
-	setSize(860, 490);
+	setSize(860, 510);
 	setResizable(false, false);
 
 	startTimer(120);

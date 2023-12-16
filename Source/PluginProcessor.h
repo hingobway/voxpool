@@ -12,6 +12,9 @@
 
 #include "util/types.h"
 
+#define ATTACK (0.010)
+#define RELEASE (0.270)
+
 // TODO fix this only 4 right now
 #define NUM_CHANNELS (4)
 
@@ -71,10 +74,18 @@ private:
 	};
 	std::array<pChan, NUM_CHANNELS> params;
 
+	std::atomic<float>* pGain = nullptr;
+	std::atomic<float>* pDepth = nullptr;
+
 	float meterVal; // meter value
 	juce::Array<float> meterVals;
 	int meterCount; // number of samples in meterVal
 	bool meterReset; // reset meterVal for next block
+
+	juce::Array<float> env_last;
+	juce::Array<float> poolGain;
+	float fac_at;
+	float fac_rl;
 
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VoxPoolAudioProcessor)

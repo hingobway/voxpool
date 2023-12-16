@@ -24,32 +24,41 @@ VoxPoolAudioProcessor::VoxPoolAudioProcessor()
 		.withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
 	), vts(*this, nullptr, juce::Identifier("FosterVoxPool"), {
+		// mixer properties
+		std::make_unique<juce::AudioParameterFloat>(
+			juce::ParameterID("depth", 1), "Depth", 0.01, 1.0, 0.85),
+		std::make_unique<juce::AudioParameterFloat>(
+			juce::ParameterID("gain", 1), "Output Gain", -15.0, 15.0, 0.0),
+
 		// ch01
 		std::make_unique<juce::AudioParameterFloat>(
-			juce::ParameterID("ch01.weight", 0), "Ch01 Weight", -15.0, 15.0, 0.0),
+			juce::ParameterID("ch01.weight", 1), "Ch01 Weight", -15.0, 15.0, 0.0),
 		std::make_unique<juce::AudioParameterBool>(
-			juce::ParameterID("ch01.on", 0), "Ch01 On", true),
+			juce::ParameterID("ch01.on", 1), "Ch01 On", true),
 		// ch02
 		std::make_unique<juce::AudioParameterFloat>(
-			juce::ParameterID("ch02.weight", 0), "Ch02 Weight", -15.0, 15.0, 0.0),
+			juce::ParameterID("ch02.weight", 1), "Ch02 Weight", -15.0, 15.0, 0.0),
 		std::make_unique<juce::AudioParameterBool>(
-			juce::ParameterID("ch02.on", 0), "Ch02 On", true),
+			juce::ParameterID("ch02.on", 1), "Ch02 On", true),
 		// ch03
 		std::make_unique<juce::AudioParameterFloat>(
-			juce::ParameterID("ch03.weight", 0), "Ch03 Weight", -15.0, 15.0, 0.0),
+			juce::ParameterID("ch03.weight", 1), "Ch03 Weight", -15.0, 15.0, 0.0),
 		std::make_unique<juce::AudioParameterBool>(
-			juce::ParameterID("ch03.on", 0), "Ch03 On", true),
+			juce::ParameterID("ch03.on", 1), "Ch03 On", true),
 		// ch04
 		std::make_unique<juce::AudioParameterFloat>(
-			juce::ParameterID("ch04.weight", 0), "Ch04 Weight", -15.0, 15.0, 0.0),
+			juce::ParameterID("ch04.weight", 1), "Ch04 Weight", -15.0, 15.0, 0.0),
 		std::make_unique<juce::AudioParameterBool>(
-			juce::ParameterID("ch04.on", 0), "Ch04 On", true)
-		})
+			juce::ParameterID("ch04.on", 1), "Ch04 On", true)
+		}), meterVals(0.0, NUM_CHANNELS), env_last(0.0, NUM_CHANNELS), poolGain(0.0, NUM_CHANNELS)
 #endif
 {
 	DBG("constructed audioprocessor");
 
 	// assign pointers to plugin parameters
+
+	pGain = vts.getRawParameterValue("gain");
+	pDepth = vts.getRawParameterValue("depth");
 	for (int i = 0; i < NUM_CHANNELS; i++) {
 		std::stringstream s{};
 		s << "ch" << std::setfill('0') << std::setw(2) << i + 1;
@@ -65,9 +74,6 @@ VoxPoolAudioProcessor::VoxPoolAudioProcessor()
 		s << prefix << ".on";
 		params[i].on = vts.getRawParameterValue(s.str());
 	}
-
-
-	meterVals.resize(NUM_CHANNELS);
 }
 
 VoxPoolAudioProcessor::~VoxPoolAudioProcessor()
@@ -139,8 +145,9 @@ void VoxPoolAudioProcessor::changeProgramName(int index, const juce::String& new
 //==============================================================================
 void VoxPoolAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-	// Use this method as the place to do any pre-playback
-	// initialisation that you need..
+	float TC = logf(9.0);
+	fac_at = expf(-TC / (ATTACK * sampleRate));
+	fac_rl = expf(-TC / (RELEASE * sampleRate));
 }
 
 void VoxPoolAudioProcessor::releaseResources()
@@ -173,49 +180,96 @@ void VoxPoolAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce:
 	bool stereo_ins{}; // TODO test whether this works again
 	if (totalNumInputChannels == 2 * NUM_CHANNELS) stereo_ins = true;
 
-	//DBG("input chans:" << totalNumInputChannels);
-	//DBG("output chans:" << totalNumOutputChannels);
 
 	// clear empty channels (safeguard)
 	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 		buffer.clear(i, 0, buffer.getNumSamples());
 
 	// convert weights from dB
-	std::array<float, NUM_CHANNELS> g{};
+	juce::Array<float> g(0.0, NUM_CHANNELS);
 	for (int c = 0; c < NUM_CHANNELS; c++) {
-		g[c] = powf(10, (*params[c].weight) / 20.0);
+		g.set(c, powf(10, (*params[c].weight) / 20.0));
 	}
+	float outGain = powf(10, (*pGain) / 20.0);
 
 	// process audio
 	auto audio = buffer.getArrayOfWritePointers();
 	for (int i = 0; i < buffer.getNumSamples(); i++) {
-		float y = 0.0;
 
-		// sum data
+		juce::Array<float> env(0.0, NUM_CHANNELS);
+
+		// calculate envelope value for each channel
 		for (int c = 0; c < NUM_CHANNELS; c++) {
-			float x = audio[c][i];
 			if (stereo_ins) {
 				int cs = c * 2;
-				x = (audio[cs][i] + audio[cs + 1][i]) * 0.5;
+				audio[c][i] = (audio[cs][i] + audio[cs + 1][i]) * 0.5;
 			}
-			x = g[c] * x;
+			float x = g[c] * audio[c][i]; // apply user-defined weight first
+			audio[c][i] = x;
 
-			y += x;
+			float xsq = x * x; // rectified sample
+			float g = 0.0; // filter gain
 
-			// update meter for this channel
-			meterVals.set(c, meterVals[c] + powf(x, 2.0));
+			// choose whether to use attack or release time based on last value
+			if (xsq > env_last[c])
+				g = fac_at;
+			else
+				g = fac_rl;
+
+			env.set(c, (1.0 - g) * xsq + g * env_last[c]); // IIR resonant LPF
+			env_last.set(c, env[c]); // reset buffer for next sample
 		}
 
-		y /= 4.0; // normalize
+		// sum envelopes to determine channel gain
+		float totalGain = 0.0;
+		for (const float& e : env) totalGain += e;
 
-		// update global meter
-		meterVal += powf(y, 2.0);
-		meterCount++; // this stays when above line gets removed
+		// output modified signal
+		float y = 0.0;
+		for (int c = 0; c < NUM_CHANNELS; c++) {
+			//poolGain.set(c, env[c] / totalGain);
+			//float poolGain = env[c] / totalGain;
+			float depth = *pDepth;
+			float poolGain = env[c] / (depth * totalGain + (1.0 - depth) * env[c]);
+
+			y += poolGain * audio[c][i];
+
+			meterVals.set(c, meterVals[c] + poolGain);
+		}
+		meterCount++;
 
 		// output to all channels
 		for (int c = 0; c < totalNumOutputChannels; c++) {
-			audio[c][i] = y;
+			audio[c][i] = outGain * y;
 		}
+
+		// ------------------- OLD
+
+		//// sum data
+		//for (int c = 0; c < NUM_CHANNELS; c++) {
+		//	float x = audio[c][i];
+		//	if (stereo_ins) {
+		//		int cs = c * 2;
+		//		x = (audio[cs][i] + audio[cs + 1][i]) * 0.5;
+		//	}
+		//	x = g[c] * x;
+
+		//	y += x;
+
+		//	// update meter for this channel
+		//	meterVals.set(c, meterVals[c] + powf(x, 2.0));
+		//}
+
+		//y /= 4.0; // normalize
+
+		//// update global meter
+		//meterVal += powf(y, 2.0);
+		//meterCount++; // this stays when above line gets removed
+
+		//// output to all channels
+		//for (int c = 0; c < totalNumOutputChannels; c++) {
+		//	audio[c][i] = y;
+		//}
 	}
 }
 
@@ -224,10 +278,12 @@ juce::Array<types::MeterVal> VoxPoolAudioProcessor::getMeterVals()
 
 	juce::Array<types::MeterVal> mvs{};
 
-	for (float& v : meterVals) {
-		float m = v;
+	//for (float& v : meterVals) {
+	for (int i = 0; i < NUM_CHANNELS; i++) {
+		float m = meterVals[i];
 		float c = (float)meterCount;
-		m = sqrtf(m / c) * 2;
+		//m = sqrtf(m / c) * 2; // for RMS
+		m = m / c; // for average
 		//if (m > 1.0) m = 1.0;
 
 		types::MeterVal mv{};
@@ -236,7 +292,7 @@ juce::Array<types::MeterVal> VoxPoolAudioProcessor::getMeterVals()
 
 		mvs.add(mv);
 
-		v = 0.0; // reset for next measurement
+		meterVals.set(i, 0.0); // reset for next measurement
 	}
 
 	//DBG("meterVal/meterCount/out " << meterVal << "/" << meterCount << "/" << m);
