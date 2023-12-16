@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="NUZRnL" name="VoxPool" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="foster"
+              companyWebsite="foster.audio" pluginFormats="buildAU,buildVST3"
+              pluginVST3Category="Dynamics,Fx,Tools,Up-Downmix">
+  <MAINGROUP id="mIHzoq" name="VoxPool">
+    <GROUP id="{1B951810-1232-E45E-3C96-60FF7683FEF9}" name="Source">
+      <GROUP id="{43949F09-DF53-50CD-E692-64579CAC53C7}" name="components">
+        <FILE id="v8Yy7k" name="ControlsBlock.h" compile="0" resource="0" file="Source/components/ControlsBlock.h"/>
+        <FILE id="dd5ttf" name="FaderBlock.h" compile="0" resource="0" file="Source/components/FaderBlock.h"/>
+        <FILE id="ua278j" name="FooterBlock.h" compile="0" resource="0" file="Source/components/FooterBlock.h"/>
+        <FILE id="Co429k" name="LAFs.h" compile="0" resource="0" file="Source/components/LAFs.h"/>
+        <FILE id="AUFxk3" name="TitleBlock.h" compile="0" resource="0" file="Source/components/TitleBlock.h"/>
+      </GROUP>
+      <GROUP id="{43758E03-C1E1-8B41-A7A9-252C11D51FD3}" name="fonts">
+        <FILE id="M1o4Pl" name="AtkinsonHyperlegible-Bold.ttf" compile="0"
+              resource="1" file="Source/fonts/AtkinsonHyperlegible-Bold.ttf"/>
+        <FILE id="lSC87j" name="AtkinsonHyperlegible-Regular.ttf" compile="0"
+              resource="1" file="Source/fonts/AtkinsonHyperlegible-Regular.ttf"/>
+      </GROUP>
+      <GROUP id="{374AC076-130E-3ADB-B9D8-6110B8ADB69F}" name="svg"/>
+      <GROUP id="{83D5E5DB-9E88-287A-53D0-BCC5F33564A6}" name="util">
+        <FILE id="tmROs4" name="colors.h" compile="0" resource="0" file="Source/util/colors.h"/>
+        <FILE id="lhyphX" name="fonts.h" compile="0" resource="0" file="Source/util/fonts.h"/>
+      </GROUP>
+      <FILE id="bPT7Nq" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="flmlAV" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="LUE47x" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="e3NVXo" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
+  <EXPORTFORMATS>
+    <VS2022 targetFolder="Builds/VisualStudio2022">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="VoxPool"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="VoxPool"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics"/>
+        <MODULEPATH id="juce_audio_devices" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="C:\JUCE\modules"/>
+      </MODULEPATHS>
+    </VS2022>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="0" name="Release"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics"/>
+        <MODULEPATH id="juce_audio_devices" path="~/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="~/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="~/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="~/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="~/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="~/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="~/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="~/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="~/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="~/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="~/JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+  </EXPORTFORMATS>
+</JUCERPROJECT>
