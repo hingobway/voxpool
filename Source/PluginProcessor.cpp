@@ -65,6 +65,9 @@ VoxPoolAudioProcessor::VoxPoolAudioProcessor()
 		s << prefix << ".on";
 		params[i].on = vts.getRawParameterValue(s.str());
 	}
+
+
+	meterVals.resize(NUM_CHANNELS);
 }
 
 VoxPoolAudioProcessor::~VoxPoolAudioProcessor()
@@ -167,7 +170,7 @@ void VoxPoolAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce:
 	auto totalNumOutputChannels = getTotalNumOutputChannels();
 
 	// some daws like ableton will always send stereo busses; if so we'll sum those to mono.
-	bool stereo_ins{}; // TODO this \/ doesn't work right now
+	bool stereo_ins{}; // TODO test whether this works again
 	if (totalNumInputChannels == 2 * NUM_CHANNELS) stereo_ins = true;
 
 	//DBG("input chans:" << totalNumInputChannels);
@@ -195,14 +198,19 @@ void VoxPoolAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce:
 				int cs = c * 2;
 				x = (audio[cs][i] + audio[cs + 1][i]) * 0.5;
 			}
-			y += g[c] * audio[c][i];
+			x = g[c] * x;
+
+			y += x;
+
+			// update meter for this channel
+			meterVals.set(c, meterVals[c] + powf(x, 2.0));
 		}
 
-		//y /= 4.0; // normalize
+		y /= 4.0; // normalize
 
-		// update meter
+		// update global meter
 		meterVal += powf(y, 2.0);
-		meterCount++;
+		meterCount++; // this stays when above line gets removed
 
 		// output to all channels
 		for (int c = 0; c < totalNumOutputChannels; c++) {
@@ -211,18 +219,32 @@ void VoxPoolAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce:
 	}
 }
 
-float VoxPoolAudioProcessor::getMeterVal()
+juce::Array<types::MeterVal> VoxPoolAudioProcessor::getMeterVals()
 {
-	float m = meterVal;
-	float c = (float)meterCount;
-	m = sqrtf(m / c) * 2;
-	if (m > 1.0) m = 1.0;
+
+	juce::Array<types::MeterVal> mvs{};
+
+	for (float& v : meterVals) {
+		float m = v;
+		float c = (float)meterCount;
+		m = sqrtf(m / c) * 2;
+		//if (m > 1.0) m = 1.0;
+
+		types::MeterVal mv{};
+		mv.level = m;
+		mv.pool = 0.5; // TODO fix this
+
+		mvs.add(mv);
+
+		v = 0.0; // reset for next measurement
+	}
 
 	//DBG("meterVal/meterCount/out " << meterVal << "/" << meterCount << "/" << m);
 
-	meterVal = 0.0;
+	//meterVal = 0.0;
+
 	meterCount = 0;
-	return m;
+	return mvs;
 }
 
 //==============================================================================
@@ -234,7 +256,7 @@ bool VoxPoolAudioProcessor::hasEditor() const
 juce::AudioProcessorEditor* VoxPoolAudioProcessor::createEditor()
 {
 	// TODO custom editor
-	return new VoxPoolAudioProcessorEditor (*this, vts);
+	return new VoxPoolAudioProcessorEditor(*this, vts);
 
 	//return new juce::GenericAudioProcessorEditor(*this);
 }

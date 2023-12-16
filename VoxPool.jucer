@@ -11,6 +11,7 @@
         <FILE id="dd5ttf" name="FaderBlock.h" compile="0" resource="0" file="Source/components/FaderBlock.h"/>
         <FILE id="ua278j" name="FooterBlock.h" compile="0" resource="0" file="Source/components/FooterBlock.h"/>
         <FILE id="Co429k" name="LAFs.h" compile="0" resource="0" file="Source/components/LAFs.h"/>
+        <FILE id="KbfivG" name="Meter.h" compile="0" resource="0" file="Source/components/Meter.h"/>
         <FILE id="AUFxk3" name="TitleBlock.h" compile="0" resource="0" file="Source/components/TitleBlock.h"/>
       </GROUP>
       <GROUP id="{43758E03-C1E1-8B41-A7A9-252C11D51FD3}" name="fonts">
@@ -23,6 +24,7 @@
       <GROUP id="{83D5E5DB-9E88-287A-53D0-BCC5F33564A6}" name="util">
         <FILE id="tmROs4" name="colors.h" compile="0" resource="0" file="Source/util/colors.h"/>
         <FILE id="lhyphX" name="fonts.h" compile="0" resource="0" file="Source/util/fonts.h"/>
+        <FILE id="mJSgj0" name="types.h" compile="0" resource="0" file="Source/util/types.h"/>
       </GROUP>
       <FILE id="bPT7Nq" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>

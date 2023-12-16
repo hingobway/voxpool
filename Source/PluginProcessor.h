@@ -10,6 +10,8 @@
 
 #include <JuceHeader.h>
 
+#include "util/types.h"
+
 // TODO fix this only 4 right now
 #define NUM_CHANNELS (4)
 
@@ -56,7 +58,7 @@ public:
 	void getStateInformation(juce::MemoryBlock& destData) override;
 	void setStateInformation(const void* data, int sizeInBytes) override;
 
-	float getMeterVal();
+	juce::Array<types::MeterVal> getMeterVals();
 
 private:
 
@@ -70,6 +72,7 @@ private:
 	std::array<pChan, NUM_CHANNELS> params;
 
 	float meterVal; // meter value
+	juce::Array<float> meterVals;
 	int meterCount; // number of samples in meterVal
 	bool meterReset; // reset meterVal for next block
 

@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include "../util/colors.h"
+#include "../util/types.h"
 
 #include "FaderBlock.h"
 #include "FooterBlock.h"
@@ -13,10 +14,10 @@
 class ControlsBlock : public juce::Component
 {
 public:
-	ControlsBlock(juce::AudioProcessorValueTreeState& vts)
+	ControlsBlock(juce::AudioProcessorValueTreeState& vts, juce::Array<types::MeterVal>& mvs)
 	{
 		// init children
-		faderWrapper.reset(new FaderWrapper(vts));
+		faderWrapper.reset(new FaderWrapper(vts, mvs));
 		footerBlock.reset(new FooterBlock());
 
 		addAndMakeVisible(faderWrapper.get());

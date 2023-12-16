@@ -13,14 +13,14 @@
 
 //==============================================================================
 VoxPoolAudioProcessorEditor::VoxPoolAudioProcessorEditor(VoxPoolAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
-	: AudioProcessorEditor(&p), audioProcessor(p), vts(vts), meterVal()
+	: AudioProcessorEditor(&p), audioProcessor(p), vts(vts), meterVals()
 {
 	setLookAndFeel(&globalLAF);
 
 	// init children
 
 	titleBlock.reset(new TitleBlock());
-	controlsBlock.reset(new ControlsBlock(vts));
+	controlsBlock.reset(new ControlsBlock(vts, meterVals));
 
 	addAndMakeVisible(titleBlock.get());
 	addAndMakeVisible(controlsBlock.get());
@@ -31,7 +31,7 @@ VoxPoolAudioProcessorEditor::VoxPoolAudioProcessorEditor(VoxPoolAudioProcessor& 
 	setSize(860, 490);
 	setResizable(false, false);
 
-	startTimer(50);
+	startTimer(120);
 
 }
 
@@ -45,26 +45,6 @@ void VoxPoolAudioProcessorEditor::paint(juce::Graphics& g)
 {
 	g.setColour(tw::c(tw::ZINC_900));
 	g.fillAll();
-
-	//// (Our component is opaque, so we must completely fill the background with a solid colour)
-	//g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
-
-	//int METER_H = 250;
-	//int METER_W = 8;
-	//int METER_X = 90;
-	//int METER_Y = 96;
-
-	//// set current meter dimensions
-	////int h = (int)roundf(meterVal * METER_H);
-	//int h = (int)roundf((METER_DB_MIN - meterVal) / METER_DB_MIN * METER_H);
-	//auto meter = juce::Rectangle<int>(METER_W, h);
-	//meter.setPosition(METER_X, METER_Y + METER_H - h);
-
-	//// draw meter
-	//g.setColour(juce::Colour(0xff000000));
-	//g.fillRect(METER_X, METER_Y, METER_W, METER_H);
-	//g.setColour(juce::Colour(0xff0022ff));
-	//g.fillRect(meter);
 }
 
 void VoxPoolAudioProcessorEditor::resized()
@@ -85,12 +65,12 @@ void VoxPoolAudioProcessorEditor::resized()
 
 void VoxPoolAudioProcessorEditor::timerCallback()
 {
-	meterVal = audioProcessor.getMeterVal();
-	float a{};
-	if (meterVal < 0.001) a = METER_DB_MIN;
-	else a = 20.0 * log10f(meterVal);
+	meterVals = audioProcessor.getMeterVals();
 
-	meterVal = a;
+	//float a{};
+	//if (meterVal < 0.001) a = METER_DB_MIN;
+	//else a = 20.0 * log10f(meterVal);
+	//meterVal = a;
 
-	repaint();
+	repaint(); // TODO there must be a way to avoid all of these repaints
 }

@@ -11,6 +11,8 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
+#include "util/types.h"
+
 #include "components/LAFs.h"
 #include "components/TitleBlock.h"
 #include "components/ControlsBlock.h"
@@ -44,7 +46,7 @@ private:
 	std::unique_ptr<TitleBlock> titleBlock;
 	std::unique_ptr<ControlsBlock> controlsBlock;
 
-	float meterVal;
+	juce::Array<types::MeterVal> meterVals;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VoxPoolAudioProcessorEditor)
 };

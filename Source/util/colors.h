@@ -26,14 +26,18 @@ namespace tw {
 		ZINC_100 = 0xf4f4f5,
 		ZINC_050 = 0xfafafa,
 
+		RED_700 = 0xb91c1c,
 		RED_600 = 0xdc2626,
 		AMBER_600 = 0xd97706,
+		AMBER_400 = 0xfbbf24,
 		YELLOW_600 = 0xca8a04,
+		GREEN_800 = 0x166534,
 		GREEN_600 = 0x16a34a,
 		EMERALD_600 = 0x059669,
 		EMERALD_700 = 0x047857,
 		SKY_600 = 0x0284c7,
 		SKY_500 = 0x0ea5e9,
+		SKY_400 = 0x38bdf8,
 		VIOLET_600 = 0x7c3aed
 	};
 
