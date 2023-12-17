@@ -50,7 +50,7 @@ VoxPoolAudioProcessor::VoxPoolAudioProcessor()
 			juce::ParameterID("ch04.weight", 1), "Ch04 Weight", -15.0, 15.0, 0.0),
 		std::make_unique<juce::AudioParameterBool>(
 			juce::ParameterID("ch04.on", 1), "Ch04 On", true)
-		}), meterVals(0.0, NUM_CHANNELS), env_last(0.0, NUM_CHANNELS), poolGain(0.0, NUM_CHANNELS)
+		}), levelSum(0.0, NUM_CHANNELS), env_last(0.0, NUM_CHANNELS)
 #endif
 {
 	DBG("constructed audioprocessor");
@@ -227,14 +227,16 @@ void VoxPoolAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce:
 		// output modified signal
 		float y = 0.0;
 		for (int c = 0; c < NUM_CHANNELS; c++) {
-			//poolGain.set(c, env[c] / totalGain);
-			//float poolGain = env[c] / totalGain;
 			float depth = *pDepth;
 			float poolGain = env[c] / (depth * totalGain + (1.0 - depth) * env[c]);
 
-			y += poolGain * audio[c][i];
+			if (*params[c].on) {
+				y += poolGain * audio[c][i];
+			}
 
-			meterVals.set(c, meterVals[c] + poolGain);
+			// update meter values
+			levelSum.set(c, levelSum[c] + audio[c][i] * audio[c][i]);
+			poolSum.set(c, poolSum[c] + poolGain);
 		}
 		meterCount++;
 
@@ -242,34 +244,6 @@ void VoxPoolAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce:
 		for (int c = 0; c < totalNumOutputChannels; c++) {
 			audio[c][i] = outGain * y;
 		}
-
-		// ------------------- OLD
-
-		//// sum data
-		//for (int c = 0; c < NUM_CHANNELS; c++) {
-		//	float x = audio[c][i];
-		//	if (stereo_ins) {
-		//		int cs = c * 2;
-		//		x = (audio[cs][i] + audio[cs + 1][i]) * 0.5;
-		//	}
-		//	x = g[c] * x;
-
-		//	y += x;
-
-		//	// update meter for this channel
-		//	meterVals.set(c, meterVals[c] + powf(x, 2.0));
-		//}
-
-		//y /= 4.0; // normalize
-
-		//// update global meter
-		//meterVal += powf(y, 2.0);
-		//meterCount++; // this stays when above line gets removed
-
-		//// output to all channels
-		//for (int c = 0; c < totalNumOutputChannels; c++) {
-		//	audio[c][i] = y;
-		//}
 	}
 }
 
@@ -278,26 +252,17 @@ juce::Array<types::MeterVal> VoxPoolAudioProcessor::getMeterVals()
 
 	juce::Array<types::MeterVal> mvs{};
 
-	//for (float& v : meterVals) {
 	for (int i = 0; i < NUM_CHANNELS; i++) {
-		float m = meterVals[i];
-		float c = (float)meterCount;
-		//m = sqrtf(m / c) * 2; // for RMS
-		m = m / c; // for average
-		//if (m > 1.0) m = 1.0;
-
 		types::MeterVal mv{};
-		mv.level = m;
-		mv.pool = 0.5; // TODO fix this
+		mv.level = sqrtf(levelSum[i] / (float)meterCount) * 2;
+		mv.pool = poolSum[i] / (float)meterCount;
 
 		mvs.add(mv);
 
-		meterVals.set(i, 0.0); // reset for next measurement
+		// reset for next measurement
+		levelSum.set(i, 0.0);
+		poolSum.set(i, 0.0);
 	}
-
-	//DBG("meterVal/meterCount/out " << meterVal << "/" << meterCount << "/" << m);
-
-	//meterVal = 0.0;
 
 	meterCount = 0;
 	return mvs;

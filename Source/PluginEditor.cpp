@@ -67,10 +67,5 @@ void VoxPoolAudioProcessorEditor::timerCallback()
 {
 	meterVals = audioProcessor.getMeterVals();
 
-	//float a{};
-	//if (meterVal < 0.001) a = METER_DB_MIN;
-	//else a = 20.0 * log10f(meterVal);
-	//meterVal = a;
-
 	repaint(); // TODO there must be a way to avoid all of these repaints
 }

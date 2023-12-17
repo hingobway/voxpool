@@ -12,11 +12,13 @@ class Knob : public juce::Component
 public:
 	using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 
-	Knob(juce::AudioProcessorValueTreeState& vts, juce::String param) : vts(vts), param(param)
+	Knob(juce::AudioProcessorValueTreeState& vts, juce::String param, bool useDB = false) : vts(vts), param(param)
 	{
 		knob.setLookAndFeel(&lafKnob);
 		knob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-		knob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
+		knob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 55, 20);
+		if (useDB) knob.setTextValueSuffix("dB");
+		knob.setScrollWheelEnabled(false);
 		addAndMakeVisible(knob);
 
 		DBG("attempting to attach param " << param);

@@ -21,8 +21,9 @@ class FaderBlock : public juce::Component
 {
 public:
 	using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
+	using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
-	FaderBlock(juce::AudioProcessorValueTreeState& vts, juce::Array<types::MeterVal>& mvs, int number) : mvs(mvs), number(number), enabled()
+	FaderBlock(juce::AudioProcessorValueTreeState& vts, juce::Array<types::MeterVal>& mvs, int number) : mvs(mvs), number(number), enabled(), onButton("onButton", juce::DrawableButton::ButtonStyle::ImageFitted)
 	{
 		// init fader number label
 		std::stringstream s{};
@@ -32,27 +33,45 @@ public:
 		numLabel.setJustificationType(juce::Justification::centred);
 		numLabel.setFont(juce::Font(fonts::Atkinson700()).withHeight(30));
 
-		// init weight fader
+		// init attachments
 		if (number <= NUM_CHAN_2) { // TODO this shouldn't be here
+			enabled = true;
+
 			s = std::stringstream();
 			s << "ch" << std::setfill('0') << std::setw(2) << number << ".weight";
 			weightAtt.reset(new SliderAttachment(vts, s.str(), weightSlider));
-			enabled = true;
+
+			s = std::stringstream();
+			s << "ch" << std::setfill('0') << std::setw(2) << number << ".on";
+			onAtt.reset(new ButtonAttachment(vts, s.str(), onButton));
 		}
+
+		// weight fader
+		weightSlider.setLookAndFeel(&lafFader);
 		weightSlider.setSliderStyle(juce::Slider::LinearVertical);
-		weightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 42, 20);
+		weightSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 55, 20);
+		weightSlider.setTextValueSuffix("dB");
+		weightSlider.setScrollWheelEnabled(false);
 		weightSlider.setEnabled(enabled);
+
+		// on button
+		onButton.setClickingTogglesState(true);
+		onButton.setLookAndFeel(&lafOnButton);
 
 		// init meter
 		meter.reset(new Meter());
-		//meter.get()->setValue(0.2 * (number-1));
 
 
 		// add children
 
 		addAndMakeVisible(numLabel);
 		addAndMakeVisible(weightSlider);
+		addAndMakeVisible(onButton);
 		addAndMakeVisible(meter.get());
+	}
+	~FaderBlock() {
+		weightSlider.setLookAndFeel(nullptr);
+		onButton.setLookAndFeel(nullptr);
 	}
 
 	void paint(juce::Graphics& g) override
@@ -66,7 +85,7 @@ public:
 
 		if (number <= NUM_CHAN_2) {
 			meter.get()->setValue(mvs[number - 1].level);
-			//DBG("setting level #" << number << " to " << mvs[number - 1].level);
+			weightSlider.getProperties().set("weight", mvs[number - 1].pool);
 		}
 	}
 
@@ -80,8 +99,9 @@ public:
 
 	void resized() override
 	{
-		juce::FlexBox fb;
-		juce::FlexBox fb2;
+		juce::FlexBox fb; // wrapper
+		juce::FlexBox fb2; // fader/meter
+		juce::FlexBox fb3; // number/on
 
 		fb.flexDirection = juce::FlexBox::Direction::column;
 		{
@@ -92,9 +112,17 @@ public:
 				fb2.items.add(juce::FlexItem().withWidth(5));
 			}
 			fb.items.add(juce::FlexItem(fb2).withFlex(1));
-			fb.items.add(juce::FlexItem(numLabel).withHeight(50));
 
-			// TODO later: for meters, paint the dark part over the colors, so that you can do different colors like in the demo!
+			fb.items.add(juce::FlexItem().withHeight(10));
+
+			fb3.flexDirection = juce::FlexBox::Direction::row;
+			fb3.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+			{
+				fb3.items.add(juce::FlexItem(onButton).withWidth(30));
+				fb3.items.add(juce::FlexItem(numLabel).withWidth(30));
+			}
+			fb.items.add(juce::FlexItem(fb3).withHeight(30));
+
 		}
 
 		fb.performLayout(getLocalBounds().reduced(10));
@@ -110,9 +138,16 @@ private:
 	juce::Slider weightSlider;
 	std::unique_ptr<SliderAttachment> weightAtt;
 
+	juce::DrawableButton onButton;
+	std::unique_ptr<ButtonAttachment> onAtt;
+
 	std::unique_ptr<Meter> meter;
 
 	juce::Label numLabel;
+
+
+	LAFFader lafFader;
+	LAFOnButton lafOnButton;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FaderBlock)
 };

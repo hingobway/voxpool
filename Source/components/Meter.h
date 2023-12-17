@@ -4,6 +4,8 @@
 
 #include "../util/colors.h"
 
+#define METER_DB_MIN (-60.0)
+
 //==============================================================================
 /*
 */
@@ -31,7 +33,10 @@ public:
 
 		// set current meter value
 		float val = meterVal;
-		//float val = (METER_DB_MIN - meterVal) / METER_DB_MIN;
+		if (val < 0.001) val = METER_DB_MIN;
+		else val = 20.0 * log10f(val);
+		val = (METER_DB_MIN - val) / METER_DB_MIN;
+
 		if (val > 1.0) val = 1.0;
 		if (val < 0.0) val = 0.0;
 		if (!(val <= 1.0 && val >= 0.0)) val = 0.0;

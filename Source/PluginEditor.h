@@ -17,9 +17,6 @@
 #include "components/TitleBlock.h"
 #include "components/ControlsBlock.h"
 
-#define METER_DB_MIN (-60.0)
-
-
 //==============================================================================
 /**
 */

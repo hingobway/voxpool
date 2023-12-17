@@ -76,14 +76,12 @@ private:
 
 	std::atomic<float>* pGain = nullptr;
 	std::atomic<float>* pDepth = nullptr;
-
-	float meterVal; // meter value
-	juce::Array<float> meterVals;
+	
+	juce::Array<float> levelSum;
+	juce::Array<float> poolSum;
 	int meterCount; // number of samples in meterVal
-	bool meterReset; // reset meterVal for next block
 
 	juce::Array<float> env_last;
-	juce::Array<float> poolGain;
 	float fac_at;
 	float fac_rl;
 

@@ -41,7 +41,8 @@ public:
 		{
 			fb.items.add(juce::FlexItem(*faderWrapper.get()).withFlex(1));
 			fb.items.add(juce::FlexItem().withHeight(GAP));
-			fb.items.add(juce::FlexItem(*footerBlock.get()).withHeight(100));
+			//fb.items.add(juce::FlexItem(*footerBlock.get()).withHeight(100));
+			fb.items.add(juce::FlexItem(*footerBlock.get()).withHeight(83));
 		}
 
 		fb.performLayout(getLocalBounds().reduced(GAP));
