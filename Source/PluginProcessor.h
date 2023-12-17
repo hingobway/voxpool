@@ -12,6 +12,7 @@
 
 #include "util/types.h"
 
+// envelope timing
 #define ATTACK (0.010)
 #define RELEASE (0.270)
 
@@ -58,26 +59,30 @@ public:
 	void getStateInformation(juce::MemoryBlock& destData) override;
 	void setStateInformation(const void* data, int sizeInBytes) override;
 
+	// method for ui to request calculation of updated meter values
 	juce::Array<types::MeterVal> getMeterVals();
 
 private:
 
 	juce::AudioProcessorValueTreeState vts;
 
-
+	// each channel has parameters organized by this struct
 	typedef struct pChan {
 		std::atomic<float>* weight = nullptr;
 		std::atomic<float>* on = nullptr;
 	};
 	std::array<pChan, NUM_CHANNELS> params;
 
+	// non-channel-specific parameters
 	std::atomic<float>* pGain = nullptr;
 	std::atomic<float>* pDepth = nullptr;
 	
+	// meter data storage
 	juce::Array<float> levelSum;
 	juce::Array<float> poolSum;
-	int meterCount; // number of samples in meterVal
+	int meterCount; // number of samples currently in meterVal
 
+	// IIR sample memory
 	juce::Array<float> env_last;
 	float fac_at;
 	float fac_rl;

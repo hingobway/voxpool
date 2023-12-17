@@ -27,8 +27,7 @@ public:
 	void paint(juce::Graphics& g) override
 	{
 		juce::Path p{};
-		p.addRoundedRectangle(getLocalBounds(), 8 + GAP);
-
+		p.addRoundedRectangle(getLocalBounds(), 8 + GAP); // match child radius
 		g.setColour(tw::c(tw::ZINC_700));
 		g.fillPath(p);
 	}
@@ -41,7 +40,6 @@ public:
 		{
 			fb.items.add(juce::FlexItem(*faderWrapper.get()).withFlex(1));
 			fb.items.add(juce::FlexItem().withHeight(GAP));
-			//fb.items.add(juce::FlexItem(*footerBlock.get()).withHeight(100));
 			fb.items.add(juce::FlexItem(*footerBlock.get()).withHeight(83));
 		}
 

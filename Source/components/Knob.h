@@ -14,6 +14,7 @@ public:
 
 	Knob(juce::AudioProcessorValueTreeState& vts, juce::String param, bool useDB = false) : vts(vts), param(param)
 	{
+		// init knob slider
 		knob.setLookAndFeel(&lafKnob);
 		knob.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
 		knob.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 55, 20);

@@ -33,8 +33,6 @@ public:
 	void timerCallback() override;
 
 private:
-	// This reference is provided as a quick way for your editor to
-	// access the processor object that created it.
 	VoxPoolAudioProcessor& audioProcessor;
 	juce::AudioProcessorValueTreeState& vts;
 	GlobalLAF globalLAF;
@@ -43,6 +41,7 @@ private:
 	std::unique_ptr<TitleBlock> titleBlock;
 	std::unique_ptr<ControlsBlock> controlsBlock;
 
+	// store values for all meters in the application so they can be passed down to children
 	juce::Array<types::MeterVal> meterVals;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(VoxPoolAudioProcessorEditor)

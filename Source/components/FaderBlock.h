@@ -8,7 +8,6 @@
 
 #include "Meter.h"
 
-// TODO can/should we link this to NUM_CHANNELS?
 #define NUM_FADERS (8)
 
 //==============================================================================
@@ -33,7 +32,7 @@ public:
 		numLabel.setFont(juce::Font(fonts::Atkinson700()).withHeight(30));
 
 		// init attachments
-		if (number <= NUM_CHANNELS) { // TODO this shouldn't be here
+		if (number <= NUM_CHANNELS) {
 			enabled = true;
 
 			s = std::stringstream();
@@ -75,13 +74,13 @@ public:
 
 	void paint(juce::Graphics& g) override
 	{
+		// fill bg
 		juce::Path p{};
 		p.addRoundedRectangle(getLocalBounds(), 8);
-
 		g.setColour(tw::c(tw::ZINC_800));
 		g.fillPath(p);
 
-
+		// send meter values to children for displaying
 		if (number <= NUM_CHANNELS) {
 			meter.get()->setValue(mvs[number - 1].level);
 			weightSlider.getProperties().set("weight", mvs[number - 1].pool);
@@ -89,7 +88,7 @@ public:
 	}
 
 	void paintOverChildren(juce::Graphics& g) override
-	{
+	{ // for disabled fader effect
 		if (!enabled) {
 			g.setColour(tw::c(tw::ZINC_700, 0.9));
 			g.fillAll();
@@ -99,8 +98,8 @@ public:
 	void resized() override
 	{
 		juce::FlexBox fb; // wrapper
-		juce::FlexBox fb2; // fader/meter
-		juce::FlexBox fb3; // number/on
+		juce::FlexBox fb2; // fader + meter
+		juce::FlexBox fb3; // number + on
 
 		fb.flexDirection = juce::FlexBox::Direction::column;
 		{
@@ -121,7 +120,6 @@ public:
 				fb3.items.add(juce::FlexItem(numLabel).withWidth(30));
 			}
 			fb.items.add(juce::FlexItem(fb3).withHeight(30));
-
 		}
 
 		fb.performLayout(getLocalBounds().reduced(10));
@@ -131,8 +129,10 @@ private:
 	juce::Array<types::MeterVal>& mvs;
 
 
-	int number;
-	bool enabled;
+	int number; // which fader is this
+	bool enabled; // is this fader available for use
+
+	// children
 
 	juce::Slider weightSlider;
 	std::unique_ptr<SliderAttachment> weightAtt;
@@ -144,6 +144,7 @@ private:
 
 	juce::Label numLabel;
 
+	// LAFs
 
 	LAFFader lafFader;
 	LAFOnButton lafOnButton;
@@ -159,6 +160,7 @@ class FaderWrapper : public juce::Component
 {
 public:
 	FaderWrapper(juce::AudioProcessorValueTreeState& vts, juce::Array<types::MeterVal>& mvs) {
+		// init each faderBlock
 		for (int i = 0; i < NUM_FADERS; i++) {
 			FaderBlock* fader = faders.add(new FaderBlock(vts, mvs, i + 1));
 			addAndMakeVisible(fader);

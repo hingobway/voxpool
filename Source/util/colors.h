@@ -41,6 +41,7 @@ namespace tw {
 		VIOLET_600 = 0x7c3aed
 	};
 
+	// web-formatted color utiltity: provide a hex code and (optionally) a numeric alpha value together
 	inline juce::Colour c(TW_COLORS h, float a) {
 		return juce::Colour(0xff000000 | h).withAlpha(a);
 	}

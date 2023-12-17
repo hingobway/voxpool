@@ -74,7 +74,9 @@ VoxPoolAudioProcessor::VoxPoolAudioProcessor()
 			juce::ParameterID("ch08.weight", 1), "Ch08 Weight", -10.0, 10.0, 0.0),
 		std::make_unique<juce::AudioParameterBool>(
 			juce::ParameterID("ch08.on", 1), "Ch08 On", true)
-		}), levelSum(0.0, NUM_CHANNELS), env_last(0.0, NUM_CHANNELS)
+		}),
+	// init multichannel arrays
+	levelSum(0.0, NUM_CHANNELS), poolSum(0.0, NUM_CHANNELS), env_last(0.0, NUM_CHANNELS)
 
 #endif
 {
@@ -170,6 +172,7 @@ void VoxPoolAudioProcessor::changeProgramName(int index, const juce::String& new
 //==============================================================================
 void VoxPoolAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+	// calculate IIR sample gain based on tuned attack/release times
 	float TC = logf(9.0);
 	fac_at = expf(-TC / (ATTACK * sampleRate));
 	fac_rl = expf(-TC / (RELEASE * sampleRate));
@@ -225,12 +228,13 @@ void VoxPoolAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce:
 
 		// calculate envelope value for each channel
 		for (int c = 0; c < NUM_CHANNELS; c++) {
+			// sum stereo inputs if necessary
 			if (stereo_ins) {
 				int cs = c * 2;
 				audio[c][i] = (audio[cs][i] + audio[cs + 1][i]) * 0.5;
 			}
 			float x = g[c] * audio[c][i]; // apply user-defined weight first
-			audio[c][i] = x;
+			audio[c][i] = x; // from now on everything will be in mono
 
 			float xsq = x * x; // rectified sample
 			float g = 0.0; // filter gain
@@ -242,19 +246,20 @@ void VoxPoolAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce:
 				g = fac_rl;
 
 			env.set(c, (1.0 - g) * xsq + g * env_last[c]); // IIR resonant LPF
-			env_last.set(c, env[c]); // reset buffer for next sample
+			env_last.set(c, env[c]); // store sample for next iteration
 		}
 
 		// sum envelopes to determine channel gain
 		float totalGain = 0.0;
 		for (const float& e : env) totalGain += e;
 
-		// output modified signal
+		// calculate pool gain and modified signal
 		float y = 0.0;
 		for (int c = 0; c < NUM_CHANNELS; c++) {
 			float depth = *pDepth;
 			float poolGain = env[c] / (depth * totalGain + (1.0 - depth) * env[c]);
 
+			// as long as this channel is turned on, add modified signal to output
 			if (*params[c].on) {
 				y += poolGain * audio[c][i];
 			}
@@ -263,9 +268,9 @@ void VoxPoolAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce:
 			levelSum.set(c, levelSum[c] + audio[c][i] * audio[c][i]);
 			poolSum.set(c, poolSum[c] + poolGain);
 		}
-		meterCount++;
+		meterCount++; // must keep count of how many samples are in meter buffer for averaging
 
-		// output to all channels
+		// output to all output channels
 		for (int c = 0; c < totalNumOutputChannels; c++) {
 			audio[c][i] = outGain * y;
 		}
@@ -274,9 +279,10 @@ void VoxPoolAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce:
 
 juce::Array<types::MeterVal> VoxPoolAudioProcessor::getMeterVals()
 {
-
+	// meterval type contains one fader's meters: a gain pool level and an audio level together
 	juce::Array<types::MeterVal> mvs{};
 
+	// calculate RMS/averages
 	for (int i = 0; i < NUM_CHANNELS; i++) {
 		types::MeterVal mv{};
 		mv.level = sqrtf(levelSum[i] / (float)meterCount) * 2;
@@ -301,10 +307,7 @@ bool VoxPoolAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* VoxPoolAudioProcessor::createEditor()
 {
-	// TODO custom editor
 	return new VoxPoolAudioProcessorEditor(*this, vts);
-
-	//return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================

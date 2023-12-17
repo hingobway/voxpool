@@ -63,6 +63,7 @@ void VoxPoolAudioProcessorEditor::resized()
 	fb.performLayout(getLocalBounds().reduced(GAP));
 }
 
+// request new meter values
 void VoxPoolAudioProcessorEditor::timerCallback()
 {
 	meterVals = audioProcessor.getMeterVals();

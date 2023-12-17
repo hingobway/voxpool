@@ -23,6 +23,7 @@ public:
 private:
 };
 
+// Knob LAF
 class LAFKnob : public juce::LookAndFeel_V4 {
 public:
 
@@ -37,11 +38,13 @@ public:
 
 		float angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
 
+		// rotate knob to current value and draw it scaled to boundary box
 		juce::Point<float> sc = svgKnob->getDrawableBounds().getCentre();
 		svgKnob->setDrawableTransform(juce::AffineTransform::rotation(angle, sc.getX(), sc.getY()));
 		svgKnob->drawWithin(g, bounds.reduced(5).toFloat(), juce::RectanglePlacement::centred, 1.0);
 	}
 
+	// knob editable text box styling
 	void drawLabel(juce::Graphics& g, juce::Label& label)
 	{
 		const juce::Colour textColor = tw::c(tw::ZINC_400);
@@ -71,6 +74,7 @@ private:
 
 };
 
+// Fader LAF (weight fader)
 class LAFFader : public juce::LookAndFeel_V4 {
 public:
 	LAFFader() {
@@ -84,33 +88,38 @@ public:
 		const juce::Slider::SliderStyle style, juce::Slider& slider) override
 	{
 
-		const int sliderWidth = 10;
-		const int sliderRadius = sliderWidth / 2;
+		// draw slider track
 
+		// params
+		const int sliderWidth = 10;
+		const int thumbHeight = 16;
+		const int thumbWidth = 42;
 		const juce::Colour trackColour = tw::c(tw::ZINC_900);
 		const juce::Colour weightColour = tw::c(tw::SKY_500);
 		const juce::Colour bgColor = tw::c(tw::ZINC_800);
+		juce::Colour thumbColour = tw::c(tw::ZINC_200);
 
-		// draw vertical slider
+		const int sliderRadius = sliderWidth / 2;
+		const int thumbRadius = thumbHeight / 2;
 
+
+		// find dimensions
 		int ix = x + ((float)width / 2) - (sliderWidth / 2);
 		juce::Rectangle<int> track(ix, y, sliderWidth, height);
 
+		// draw normal track
 		g.setColour(weightColour);
 		g.fillRect(track);
 
-
-
+		// draw current weight
 		float val = slider.getProperties().getWithDefault("weight", 0.0);
 		if (val > 1.0) val = 1.0;
 		if (val < 0.0) val = 0.0;
 		if (!(val <= 1.0 && val >= 0.0)) val = 0.0;
-
 		int fill = roundf((1.0 - val) * height);
 
 		g.setColour(trackColour);
 		g.fillRect(track.withHeight(fill));
-
 
 		// clip track into rounded corners
 		juce::Path ro;
@@ -122,24 +131,14 @@ public:
 		g.setColour(bgColor);
 		g.fillPath(ro);
 
-
-		// thumb
-
-		const int thumbHeight = 16;
-		const int thumbWidth = 42;
-		juce::Colour thumbColour = tw::c(tw::ZINC_200);
-
-		const int thumbRadius = thumbHeight / 2;
-		float kx = (float)x + (float)width * 0.5f;
-		float ky = sliderPos;
-
+		// draw thumb at sliderPos
 		juce::Path thumb;
 		thumb.addRoundedRectangle((float)x + ((float)width - thumbWidth) / 2.0, sliderPos - thumbRadius, thumbWidth, thumbHeight, thumbRadius);
-
 		g.setColour(thumbColour);
 		g.fillPath(thumb);
 	}
 
+	// fader editable text box styling
 	void drawLabel(juce::Graphics& g, juce::Label& label)
 	{
 		const juce::Colour textColor = tw::c(tw::ZINC_400);
@@ -167,6 +166,7 @@ public:
 private:
 };
 
+// On Button LAF (on/off button for a channel)
 class LAFOnButton : public juce::LookAndFeel_V4 {
 public:
 	LAFOnButton() {
@@ -179,6 +179,7 @@ public:
 	{
 		bool toggleState = button.getToggleState();
 
+		// params
 		const int size = 30;
 		const int radius = 3;
 		const juce::Colour bgColor(tw::c(tw::ZINC_900));
