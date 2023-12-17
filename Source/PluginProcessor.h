@@ -15,9 +15,6 @@
 #define ATTACK (0.010)
 #define RELEASE (0.270)
 
-// TODO fix this only 4 right now
-#define NUM_CHANNELS (4)
-
 //==============================================================================
 /**
 */

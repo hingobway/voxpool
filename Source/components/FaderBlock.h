@@ -4,13 +4,12 @@
 
 #include "../util/colors.h"
 #include "../util/fonts.h"
+#include "../util/types.h"
 
 #include "Meter.h"
 
 // TODO can/should we link this to NUM_CHANNELS?
 #define NUM_FADERS (8)
-#define NUM_CHAN_2 (4)
-// again, fix this /\
 
 //==============================================================================
 /*
@@ -34,7 +33,7 @@ public:
 		numLabel.setFont(juce::Font(fonts::Atkinson700()).withHeight(30));
 
 		// init attachments
-		if (number <= NUM_CHAN_2) { // TODO this shouldn't be here
+		if (number <= NUM_CHANNELS) { // TODO this shouldn't be here
 			enabled = true;
 
 			s = std::stringstream();
@@ -83,7 +82,7 @@ public:
 		g.fillPath(p);
 
 
-		if (number <= NUM_CHAN_2) {
+		if (number <= NUM_CHANNELS) {
 			meter.get()->setValue(mvs[number - 1].level);
 			weightSlider.getProperties().set("weight", mvs[number - 1].pool);
 		}
