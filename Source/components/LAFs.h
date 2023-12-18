@@ -28,7 +28,7 @@ class LAFKnob : public juce::LookAndFeel_V4 {
 public:
 
 	LAFKnob() {
-		svgKnob = juce::Drawable::createFromImageData(BinaryData::knob2_svg, BinaryData::knob2_svgSize);
+		svgKnob = juce::Drawable::createFromImageData(BinaryData::knob3_svg, BinaryData::knob3_svgSize);
 	}
 
 	void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
@@ -39,9 +39,12 @@ public:
 		float angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
 
 		// rotate knob to current value and draw it scaled to boundary box
-		juce::Point<float> sc = svgKnob->getDrawableBounds().getCentre();
-		svgKnob->setDrawableTransform(juce::AffineTransform::rotation(angle, sc.getX(), sc.getY()));
+		juce::Point<float> sdc = svgKnob->getDrawableBounds().getCentre();
+		svgKnob->setDrawableTransform(juce::AffineTransform::rotation(angle, sdc.getX(), sdc.getY()));
 		svgKnob->drawWithin(g, bounds.reduced(5).toFloat(), juce::RectanglePlacement::centred, 1.0);
+		//juce::Point<float> sc = svgKnob->getBounds().getCentre().toFloat();
+		//juce::Point<float> cc = g.getClipBounds().getCentre().toFloat();
+		//svgKnob->drawAt(g, cc.getX() - sc.getX(), cc.getY() - sc.getY(), 1.0);
 	}
 
 	// knob editable text box styling

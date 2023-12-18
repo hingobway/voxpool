@@ -28,6 +28,7 @@
               file="Source/svg/instructions.svg"/>
         <FILE id="lHuW57" name="knob.svg" compile="0" resource="1" file="Source/svg/knob.svg"/>
         <FILE id="oe9Iam" name="knob2.svg" compile="0" resource="1" file="Source/svg/knob2.svg"/>
+        <FILE id="meufsA" name="knob3.svg" compile="0" resource="1" file="Source/svg/knob3.svg"/>
       </GROUP>
       <GROUP id="{83D5E5DB-9E88-287A-53D0-BCC5F33564A6}" name="util">
         <FILE id="tmROs4" name="colors.h" compile="0" resource="0" file="Source/util/colors.h"/>

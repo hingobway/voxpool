@@ -30,7 +30,7 @@ VoxPoolAudioProcessor::VoxPoolAudioProcessor()
 	), vts(*this, nullptr, juce::Identifier("FosterVoxPool"), {
 		// mixer properties
 		std::make_unique<juce::AudioParameterFloat>(
-			juce::ParameterID("depth", 1), "Depth", 0.01, 1.0, 0.85),
+			juce::ParameterID("depth", 1), "Depth", 0.01, 1.00, 0.85),
 		std::make_unique<juce::AudioParameterFloat>(
 			juce::ParameterID("gain", 1), "Output Gain", -15.0, 15.0, 0.0),
 
