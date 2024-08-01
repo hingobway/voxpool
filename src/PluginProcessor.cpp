@@ -13,16 +13,18 @@
 VoxPoolAudioProcessor::VoxPoolAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties()
-                         //  .withInput("Automix Ch01", juce::AudioChannelSet::mono(), true)
-                         //  .withInput("Automix Ch02", juce::AudioChannelSet::mono(), true)
-                         //  .withInput("Automix Ch03", juce::AudioChannelSet::mono(), true)
-                         //  .withInput("Automix Ch04", juce::AudioChannelSet::mono(), true)
-                         //  .withInput("Automix Ch05", juce::AudioChannelSet::mono(), true)
-                         //  .withInput("Automix Ch06", juce::AudioChannelSet::mono(), true)
-                         //  .withInput("Automix Ch07", juce::AudioChannelSet::mono(), true)
-                         //  .withInput("Automix Ch08", juce::AudioChannelSet::mono(), true)
+                         .withInput("Automix Ch01", juce::AudioChannelSet::mono(), true)
+                         .withInput("Automix Ch02", juce::AudioChannelSet::mono(), true)
+                         .withInput("Automix Ch03", juce::AudioChannelSet::mono(), true)
+                         .withInput("Automix Ch04", juce::AudioChannelSet::mono(), true)
+                         .withInput("Automix Ch05", juce::AudioChannelSet::mono(), true)
+                         .withInput("Automix Ch06", juce::AudioChannelSet::mono(), true)
+                         .withInput("Automix Ch07", juce::AudioChannelSet::mono(), true)
+                         .withInput("Automix Ch08", juce::AudioChannelSet::mono(), true)
+
                          .withInput("Input", juce::AudioChannelSet::stereo(), true)
                          .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
+
       vts(*this, nullptr, juce::Identifier("FosterVoxPool"),
           {// mixer properties
            std::make_unique<juce::AudioParameterFloat>(

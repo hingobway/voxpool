@@ -42,8 +42,7 @@ juce_add_binary_data(BinaryData
   assets/svg/button_off.svg
   assets/svg/button_on.svg
   assets/svg/instructions.svg
-  assets/svg/knob.svg
-  assets/svg/knob2.svg
+  assets/svg/knob3.svg
 
   assets/fonts/AtkinsonHyperlegible-Bold.ttf
   assets/fonts/AtkinsonHyperlegible-Regular.ttf
