@@ -2,18 +2,22 @@
 
 #include "JuceHeader.h"
 
-namespace util {
+namespace util
+{
 	// web-formatted color utiltity: provide a hex code and a numeric alpha value together
-	inline juce::Colour hexA(uint32_t h, float a) {
+	inline juce::Colour hexA(uint32_t h, float a)
+	{
 		return juce::Colour(0xff000000 | h).withAlpha(a);
 	};
 }
 
-namespace tw {
+namespace tw
+{
 
 	// these are some colors from the Tailwind color system:
 	// https://tailwindcss.com/docs/customizing-colors
-	enum TW_COLORS {
+	enum TW_COLORS
+	{
 		ZINC_950 = 0x09090b,
 		ZINC_900 = 0x18181b,
 		ZINC_800 = 0x27272a,
@@ -42,10 +46,12 @@ namespace tw {
 	};
 
 	// web-formatted color utiltity: provide a hex code and (optionally) a numeric alpha value together
-	inline juce::Colour c(TW_COLORS h, float a) {
-		return juce::Colour(0xff000000 | h).withAlpha(a);
+	inline juce::Colour c(TW_COLORS h, double a)
+	{
+		return juce::Colour(0xff000000 | h).withAlpha((float)a);
 	}
-	inline juce::Colour c(TW_COLORS h) {
+	inline juce::Colour c(TW_COLORS h)
+	{
 		return juce::Colour(0xff000000 | h);
 	}
 }

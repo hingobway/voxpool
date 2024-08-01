@@ -3,10 +3,10 @@
 
 // very important: number of active channels allocated in audio/graphics.
 // must be <= the number of buses and params.
-#define NUM_CHANNELS (8)
+#define NUM_CHANNELS (1)
 
 namespace types {
-	typedef struct MeterVal {
+	struct MeterVal {
 		float pool;
 		float level;
 	};
