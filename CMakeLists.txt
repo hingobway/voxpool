@@ -36,6 +36,10 @@ target_sources(Plugin
   src/PluginEditor.cpp
 )
 
+# # solution tree - only add if you use a solution-based editor
+# file(GLOB_RECURSE SOURCE_TREE src/*)
+# source_group(src TREE ../src PREFIX src FILES ${SOURCE_TREE})
+
 # BINARY DATA
 juce_add_binary_data(BinaryData
   SOURCES
