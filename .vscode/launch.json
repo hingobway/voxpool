@@ -1,0 +1,43 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "(Windows) VST Debug",
+      "type": "cppvsdbg",
+      "request": "launch",
+      // ENTER: your daw executable path
+      "program": "C:/Program Files/REAPER (x64)/reaper.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": []
+    },
+    {
+      "name": "(GNU) VST Debug",
+      "type": "cppdbg",
+      "request": "launch",
+      // ENTER: your daw executable path
+      "program": "/YOUR/DAw/EXECUTABLE/HERE",
+
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [
+        {
+          // add the directory where our target was built to the PATHs
+          // it gets resolved by CMake Tools:
+          "name": "PATH",
+          "value": "$PATH:${command:cmake.launchTargetDirectory}"
+        }
+      ],
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}
