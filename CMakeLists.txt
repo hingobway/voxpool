@@ -11,7 +11,7 @@ juce_add_plugin(Plugin
   PLUGIN_CODE Ft7c
 
   FORMATS AU VST3 Standalone
-  PRODUCT_NAME "VoxPoolCMAKE"
+  PRODUCT_NAME "VoxPool"
 )
 
 juce_generate_juce_header(Plugin)
